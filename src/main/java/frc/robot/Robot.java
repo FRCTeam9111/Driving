@@ -7,6 +7,7 @@ package frc.robot;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
@@ -32,6 +33,9 @@ public class Robot extends TimedRobot {
   private final Joystick m_controller = new Joystick(0);
   //logitech controller
   private final XboxController xbox_controller = new XboxController(0);
+
+  //Camera Thread
+  Thread m_visionThread;
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -43,6 +47,18 @@ public class Robot extends TimedRobot {
 
    // Syncs the right side of the motors with one another
    m_followMotorright.follow(m_leadMotorright);
+
+   m_visionThread = new Thread(
+        () -> {
+          var camera = CameraServer.startAutomaticCapture();
+
+          var cameraWidth = 640;
+          var cameraHeight = 480;
+
+          camera.setResolution(cameraWidth, cameraHeight);        
+        });
+    m_visionThread.setDaemon(true);
+    m_visionThread.start(); 
 
   }
 
