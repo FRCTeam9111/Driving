@@ -3,9 +3,8 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
-
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.Joystick;
@@ -22,12 +21,12 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
  */
 public class Robot extends TimedRobot {
  
-  private final CANSparkMax m_leadMotorleft = new CANSparkMax(3, MotorType.kBrushed);
-  //private final CANSparkMax m_arm = new CANSparkMax(9, MotorType.kBrushless);
-  private final CANSparkMax m_followMotorleft = new CANSparkMax(4, MotorType.kBrushed);
-  private final CANSparkMax m_leadMotorright = new CANSparkMax(2, MotorType.kBrushed);
-  private final CANSparkMax m_followMotorright = new CANSparkMax(1, MotorType.kBrushed);
-  //private final CANSparkMax m_liftMotor = new CANSparkMax(6, MotorType.kBrushless);
+  private final SparkMax m_leadMotorleft = new SparkMax(3, MotorType.kBrushed);
+  //private final SparkMax m_arm = new SparkMax(9, MotorType.kBrushless);
+  private final SparkMax m_followMotorleft = new SparkMax(4, MotorType.kBrushed);
+  private final SparkMax m_leadMotorright = new SparkMax(2, MotorType.kBrushed);
+  private final SparkMax m_followMotorright = new SparkMax(1, MotorType.kBrushed);
+  //private final SparkMax m_liftMotor = new SparkMax(6, MotorType.kBrushless);
   private final DifferentialDrive m_robotDrive = new DifferentialDrive(m_leadMotorleft, m_leadMotorright);
   //Joystick controller
   private final Joystick m_controller = new Joystick(0);
@@ -42,11 +41,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-   // Syncs the left side of the motors with one another
-   m_followMotorleft.follow(m_leadMotorleft);
 
-   // Syncs the right side of the motors with one another
-   m_followMotorright.follow(m_leadMotorright);
 
    m_visionThread = new Thread(
         () -> {
@@ -91,18 +86,19 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {}
 
-  @Override
-  public void teleopInit() {
- 
-  }
-
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    // Syncs the left side of the motors with one another
+    m_followMotorleft.set(m_leadMotorleft.get());
+
+   // Syncs the right side of the motors with one another
+   m_followMotorright.set(m_leadMotorright.get());
+    
     //XBox Controller
     m_robotDrive.arcadeDrive(-xbox_controller.getLeftX() * .8, -xbox_controller.getLeftY() * .8);
     // joystick 
-    m_robotDrive.arcadeDrive(-m_controller.getRawAxis(0) * .5, -m_controller.getRawAxis(1) * .8);
+    m_robotDrive.arcadeDrive(-m_controller.getRawAxis(0) * .8, -m_controller.getRawAxis(1) * .8);
    
   }
 
